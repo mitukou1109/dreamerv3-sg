@@ -65,7 +65,7 @@ def main():
       'cloth_flatten_init_states.pkl' \
     ), **env_kwargs)
   
-  from embodied.envs import from_gym
+  from dreamerv3.embodied.envs import from_gym
   env = from_gym.FromGym(env, obs_key='image')  # Or obs_key='vector'.
   env = dreamerv3.wrap_env(env, config)
   env = embodied.BatchEnv([env], parallel=False)
