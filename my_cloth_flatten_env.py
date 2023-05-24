@@ -20,9 +20,12 @@ class MyClothFlattenEnv(ClothFlattenEnv):
         reward = super().compute_reward(action, obs, set_prev_reward)
         for pp in self.get_picked_particle():
             if pp != -1:
-                self.picking_duration += 1
+                self.picking_duration += 0.002
             else:
                 self.picking_duration = 0
-        reward += self.picking_duration * 0.01
+        reward += self.picking_duration
         return reward
-        
+    
+    def _reset(self):
+        self.picking_duration = 0
+        return super()._reset()
