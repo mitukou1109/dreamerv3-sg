@@ -10,17 +10,27 @@ def main():
   config = config.update(dreamerv3.configs['medium'])
   config = config.update({
       'logdir': './logdir/cloth_flatten/1',
-      'run.train_ratio': 64,
-      'run.log_every': 30,  # Seconds
-      'batch_size': 16,
+      # 'batch_size': 8,
+      # 'batch_length': 16,
+      # 'replay_size': 1e4,
+      # 'run.actor_batch': 2,
+      # 'rssm.deter': 64,
+      # '.*\.cnn_depth': 8,
+      # '.*\.cnn_depth': 8,
+      # '.*\.units': 32,
+      # '.*\.layers': 2,
+      'jax.policy_devices': [0],
+      'jax.train_devices': [0],
+      'jax.platform': 'gpu',
       'jax.prealloc': False,
+      'run.train_ratio': 64,
+      'run.log_every': 300,  # Seconds
+      'run.save_every': 60,
       'encoder.mlp_keys': '$^',
       'decoder.mlp_keys': '$^',
       'encoder.cnn_keys': 'image',
       'decoder.cnn_keys': 'image',
-      'jax.policy_devices': [0],
-      'jax.train_devices': [0]
-      # 'jax.platform': 'cpu',
+      # 'rssm': {'deter': 32, 'stoch': 4, 'classes': 4},      
   })
   config = embodied.Flags(config).parse()
 
@@ -36,13 +46,24 @@ def main():
     
   from softgym import envs, registered_env
   env_kwargs = registered_env.env_arg_dict['ClothFlatten']
-  env_kwargs['action_mode'] = 'sawyer'
-  env_kwargs['use_cached_states'] = False
-  env_kwargs['save_cached_states'] = False
-  env_kwargs['num_variations'] = 1
-  env_kwargs['camera_height'] = 512
-  env_kwargs['camera_width'] = 512
-  env = envs.cloth_flatten.ClothFlattenEnv(**env_kwargs)
+  env_kwargs['observation_mode'] = 'cam_rgb'
+  env_kwargs['action_mode'] = 'picker'
+  env_kwargs['num_picker'] = 1
+  env_kwargs['use_cached_states'] = True
+  env_kwargs['save_cached_states'] = True
+  env_kwargs['num_variations'] = 10
+  env_kwargs['camera_height'] = 128
+  env_kwargs['camera_width'] = 128
+  # env_kwargs['render'] = False
+  # env_kwargs['horizon'] = 10
+  
+  import os.path as osp
+  env = envs.cloth_flatten.ClothFlattenEnv( \
+    cached_states_path=osp.join( \
+      osp.dirname(osp.abspath(__file__)), \
+      'cached_initial_states', \
+      'cloth_flatten_init_states.pkl' \
+    ), **env_kwargs)
   
   from embodied.envs import from_gym
   env = from_gym.FromGym(env, obs_key='image')  # Or obs_key='vector'.
