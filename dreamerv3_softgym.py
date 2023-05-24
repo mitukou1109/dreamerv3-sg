@@ -9,7 +9,7 @@ def main():
   config = embodied.Config(dreamerv3.configs['defaults'])
   config = config.update(dreamerv3.configs['medium'])
   config = config.update({
-      'logdir': './logdir/cloth_flatten/1',
+      'logdir': './logdir/cloth_flatten/2',
       # 'batch_size': 8,
       # 'batch_length': 16,
       # 'replay_size': 1e4,
