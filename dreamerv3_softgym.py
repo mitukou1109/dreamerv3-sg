@@ -9,7 +9,7 @@ def main():
   config = embodied.Config(dreamerv3.configs['defaults'])
   config = config.update(dreamerv3.configs['medium'])
   config = config.update({
-      'logdir': './logdir/cloth_flatten/1',
+      'logdir': './logdir/cloth_flatten/3',
       # 'batch_size': 8,
       # 'batch_length': 16,
       # 'replay_size': 1e4,
@@ -44,7 +44,7 @@ def main():
       # embodied.logger.MLFlowOutput(logdir.name),
   ])
     
-  from softgym import envs, registered_env
+  from softgym import registered_env
   env_kwargs = registered_env.env_arg_dict['ClothFlatten']
   env_kwargs['observation_mode'] = 'cam_rgb'
   env_kwargs['action_mode'] = 'picker'
@@ -57,13 +57,8 @@ def main():
   # env_kwargs['render'] = False
   # env_kwargs['horizon'] = 10
   
-  import os.path as osp
-  env = envs.cloth_flatten.ClothFlattenEnv( \
-    cached_states_path=osp.join( \
-      osp.dirname(osp.abspath(__file__)), \
-      'cached_initial_states', \
-      'cloth_flatten_init_states.pkl' \
-    ), **env_kwargs)
+  from my_cloth_flatten_env import MyClothFlattenEnv
+  env = MyClothFlattenEnv(**env_kwargs)
   
   from dreamerv3.embodied.envs import from_gym
   env = from_gym.FromGym(env, obs_key='image')  # Or obs_key='vector'.
