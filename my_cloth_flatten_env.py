@@ -14,20 +14,21 @@ class MyClothFlattenEnv(ClothFlattenEnv):
         
         super().__init__(cached_states_path=cached_states_path, **kwargs)
         
-        self.picking_duration = 0
-        self.total_steps = 0
+        self.picking_reward = 0
 
     def compute_reward(self, action=None, obs=None, set_prev_reward=False):
         reward = super().compute_reward(action, obs, set_prev_reward)
         for pp in self.get_picked_particle():
             if pp != -1:
-                self.picking_duration += 0.2 * (0.1 ** (1 / 10000)) ** self.total_steps
+                if self.picking_reward < 0.1:
+                    self.picking_reward = 0.1
+                else:
+                    self.picking_reward *= 1.01
             else:
-                self.picking_duration = 0
-        self.total_steps += 1
-        reward += self.picking_duration
+                self.picking_reward = 0
+        reward += self.picking_reward
         return reward
     
     def _reset(self):
-        self.picking_duration = 0
+        self.picking_reward = 0
         return super()._reset()
