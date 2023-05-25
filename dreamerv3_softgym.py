@@ -25,7 +25,7 @@ def main():
       'jax.prealloc': False,
       'run.train_ratio': 64,
       'run.log_every': 300,  # Seconds
-      'run.save_every': 60,
+      'run.save_every': 120,
       'encoder.mlp_keys': '$^',
       'decoder.mlp_keys': '$^',
       'encoder.cnn_keys': 'image',
