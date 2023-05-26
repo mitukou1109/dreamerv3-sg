@@ -1,15 +1,19 @@
-def main():
+import warnings
+import dreamerv3
+from dreamerv3 import embodied
+from dreamerv3.embodied.envs import from_gym
+from softgym import registered_env
+from my_cloth_flatten_env import MyClothFlattenEnv
 
-  import warnings
-  import dreamerv3
-  from dreamerv3 import embodied
+def main():
   warnings.filterwarnings('ignore', '.*truncated to dtype int32.*')
 
   # See configs.yaml for all options.
   config = embodied.Config(dreamerv3.configs['defaults'])
   config = config.update(dreamerv3.configs['medium'])
   config = config.update({
-      'logdir': './logdir/cloth_flatten/3',
+      'logdir': './logdir/cloth_flatten/4',
+      'run.from_checkpoint': './logdir/cloth_flatten/4/checkpoint.ckpt',
       # 'batch_size': 8,
       # 'batch_length': 16,
       # 'replay_size': 1e4,
@@ -44,7 +48,6 @@ def main():
       # embodied.logger.MLFlowOutput(logdir.name),
   ])
     
-  from softgym import registered_env
   env_kwargs = registered_env.env_arg_dict['ClothFlatten']
   env_kwargs['observation_mode'] = 'cam_rgb'
   env_kwargs['action_mode'] = 'pickerpickplace'
@@ -58,10 +61,8 @@ def main():
   # env_kwargs['render'] = False
   # env_kwargs['horizon'] = 10
   
-  from my_cloth_flatten_env import MyClothFlattenEnv
   env = MyClothFlattenEnv(**env_kwargs)
   
-  from dreamerv3.embodied.envs import from_gym
   env = from_gym.FromGym(env, obs_key='image')  # Or obs_key='vector'.
   env = dreamerv3.wrap_env(env, config)
   env = embodied.BatchEnv([env], parallel=False)
@@ -74,7 +75,6 @@ def main():
       batch_steps=config.batch_size * config.batch_length)
   embodied.run.train(agent, env, replay, logger, args)
   # embodied.run.eval_only(agent, env, logger, args)
-
 
 if __name__ == '__main__':
   main()
