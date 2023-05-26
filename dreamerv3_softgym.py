@@ -47,7 +47,8 @@ def main():
   from softgym import registered_env
   env_kwargs = registered_env.env_arg_dict['ClothFlatten']
   env_kwargs['observation_mode'] = 'cam_rgb'
-  env_kwargs['action_mode'] = 'picker'
+  env_kwargs['action_mode'] = 'pickerpickplace'
+  env_kwargs['action_repeat'] = 1
   env_kwargs['num_picker'] = 1
   env_kwargs['use_cached_states'] = True
   env_kwargs['save_cached_states'] = True
