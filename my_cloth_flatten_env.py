@@ -1,5 +1,6 @@
 from softgym.envs.cloth_flatten import ClothFlattenEnv
 import os
+import pyflex
 
 class MyClothFlattenEnv(ClothFlattenEnv):
     def __init__(self, **kwargs):
@@ -14,21 +15,18 @@ class MyClothFlattenEnv(ClothFlattenEnv):
         
         super().__init__(cached_states_path=cached_states_path, **kwargs)
         
-        self.picking_reward = 0
+        self.prev_covered_area = None
 
     def compute_reward(self, action=None, obs=None, set_prev_reward=False):
-        reward = super().compute_reward(action, obs, set_prev_reward)
-        for pp in self.get_picked_particle():
-            if pp != -1:
-                if self.picking_reward < 0.1:
-                    self.picking_reward = 0.1
-                else:
-                    self.picking_reward *= 1.01
-            else:
-                self.picking_reward = 0
-        reward += self.picking_reward
+        curr_covered_area = self._get_current_covered_area(pyflex.get_positions())
+        reward = curr_covered_area
+        if any([pp != -1 for pp in self.get_picked_particle()]):
+            reward += 0.05 + 1.5 * (curr_covered_area - self.prev_covered_area)
+            # print(curr_covered_area - self.prev_covered_area)
+        self.prev_covered_area = curr_covered_area
         return reward
     
     def _reset(self):
-        self.picking_reward = 0
-        return super()._reset()
+        obs = super()._reset()
+        self.prev_covered_area = self._get_current_covered_area(pyflex.get_positions())
+        return obs
