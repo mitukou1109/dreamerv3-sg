@@ -10,10 +10,9 @@ def main():
 
   # See configs.yaml for all options.
   config = embodied.Config(dreamerv3.configs['defaults'])
-  config = config.update(dreamerv3.configs['medium'])
+  config = config.update(dreamerv3.configs['large'])
   config = config.update({
-      'logdir': './logdir/cloth_flatten/4',
-      'run.from_checkpoint': './logdir/cloth_flatten/4/checkpoint.ckpt',
+      'logdir': './logdir/cloth_flatten/5',
       # 'batch_size': 8,
       # 'batch_length': 16,
       # 'replay_size': 1e4,
@@ -55,7 +54,7 @@ def main():
   env_kwargs['num_picker'] = 1
   env_kwargs['use_cached_states'] = True
   env_kwargs['save_cached_states'] = True
-  env_kwargs['num_variations'] = 10
+  env_kwargs['num_variations'] = 1
   env_kwargs['camera_height'] = 128
   env_kwargs['camera_width'] = 128
   # env_kwargs['render'] = False
