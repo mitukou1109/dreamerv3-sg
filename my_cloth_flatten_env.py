@@ -21,7 +21,7 @@ class MyClothFlattenEnv(ClothFlattenEnv):
         curr_covered_area = self._get_current_covered_area(pyflex.get_positions())
         reward = curr_covered_area
         if any([pp != -1 for pp in self.get_picked_particle()]):
-            reward += 0.05 + 1.5 * (curr_covered_area - self.prev_covered_area)
+            reward += 1.5 * (curr_covered_area - self.prev_covered_area)
             # print(curr_covered_area - self.prev_covered_area)
         self.prev_covered_area = curr_covered_area
         return reward
