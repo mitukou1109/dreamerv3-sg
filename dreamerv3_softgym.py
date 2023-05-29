@@ -54,7 +54,7 @@ def main():
   env_kwargs['num_picker'] = 1
   env_kwargs['use_cached_states'] = True
   env_kwargs['save_cached_states'] = True
-  env_kwargs['num_variations'] = 1
+  env_kwargs['num_variations'] = 1000
   env_kwargs['camera_height'] = 128
   env_kwargs['camera_width'] = 128
   # env_kwargs['render'] = False
