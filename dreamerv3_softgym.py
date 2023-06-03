@@ -1,4 +1,5 @@
 import warnings
+from functools import partial as bind
 import dreamerv3
 from dreamerv3 import embodied
 from dreamerv3.embodied.envs import from_gym
@@ -61,10 +62,20 @@ def main():
   # env_kwargs['horizon'] = 10
   
   env = MyClothFlattenEnv(**env_kwargs)
+  env = from_gym.FromGym(env, obs_key='image')
   
-  env = from_gym.FromGym(env, obs_key='image')  # Or obs_key='vector'.
-  env = dreamerv3.wrap_env(env, config)
-  env = embodied.BatchEnv([env], parallel=False)
+  # env = dreamerv3.wrap_env(env, config)
+
+  ctors = []
+  for _ in range(config.envs.amount):
+    ctor = lambda: dreamerv3.wrap_env(env, config)
+    if config.envs.parallel != 'none':
+      ctor = bind(embodied.Parallel, ctor, config.envs.parallel)
+    if config.envs.restart:
+      ctor = bind(embodied.wrappers.RestartOnException, ctor)
+    ctors.append(ctor)
+  envs = [ctor() for ctor in ctors]
+  env = embodied.BatchEnv(envs, parallel=(config.envs.parallel != 'none'))
 
   agent = dreamerv3.Agent(env.obs_space, env.act_space, step, config)
   replay = embodied.replay.Uniform(
