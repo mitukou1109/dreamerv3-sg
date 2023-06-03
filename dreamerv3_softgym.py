@@ -11,18 +11,9 @@ def main():
 
   # See configs.yaml for all options.
   config = embodied.Config(dreamerv3.configs['defaults'])
-  config = config.update(dreamerv3.configs['large'])
+  config = config.update(dreamerv3.configs['xlarge'])
   config = config.update({
-      'logdir': './logdir/cloth_flatten/6',
-      # 'batch_size': 8,
-      # 'batch_length': 16,
-      # 'replay_size': 1e4,
-      # 'run.actor_batch': 2,
-      # 'rssm.deter': 64,
-      # '.*\.cnn_depth': 8,
-      # '.*\.cnn_depth': 8,
-      # '.*\.units': 32,
-      # '.*\.layers': 2,
+      'logdir': './logdir/cloth_flatten/7',
       'jax.policy_devices': [0],
       'jax.train_devices': [0],
       'jax.platform': 'gpu',
@@ -30,11 +21,11 @@ def main():
       'run.train_ratio': 64,
       'run.log_every': 300,  # Seconds
       'run.save_every': 120,
+      'envs.amount': 8,
       'encoder.mlp_keys': '$^',
       'decoder.mlp_keys': '$^',
       'encoder.cnn_keys': 'image',
-      'decoder.cnn_keys': 'image',
-      # 'rssm': {'deter': 32, 'stoch': 4, 'classes': 4},      
+      'decoder.cnn_keys': 'image',    
   })
   config = embodied.Flags(config).parse()
 
@@ -55,11 +46,9 @@ def main():
   env_kwargs['num_picker'] = 1
   env_kwargs['use_cached_states'] = True
   env_kwargs['save_cached_states'] = True
-  env_kwargs['num_variations'] = 1000
+  env_kwargs['num_variations'] = 100
   env_kwargs['camera_height'] = 128
   env_kwargs['camera_width'] = 128
-  # env_kwargs['render'] = False
-  # env_kwargs['horizon'] = 10
   
   env = MyClothFlattenEnv(**env_kwargs)
   env = from_gym.FromGym(env, obs_key='image')
