@@ -14,7 +14,7 @@ def main():
   config = embodied.Config(dreamerv3.configs['defaults'])
   config = config.update(dreamerv3.configs['xlarge'])
   config = config.update({
-      'logdir': './logdir/cloth_flatten/7',
+      'logdir': './logdir/cloth_flatten/8',
       'jax.policy_devices': [0],
       'jax.train_devices': [0],
       'jax.platform': 'gpu',
@@ -43,7 +43,7 @@ def main():
 
   env_kwargs = registered_env.env_arg_dict['ClothFlatten']
   env_kwargs['observation_mode'] = 'cam_rgb'
-  env_kwargs['action_mode'] = 'pickerpickplace'
+  env_kwargs['action_mode'] = 'picker'
   env_kwargs['action_repeat'] = 1
   env_kwargs['num_picker'] = 1
   env_kwargs['use_cached_states'] = True
