@@ -1,3 +1,4 @@
+import os
 import warnings
 from functools import partial as bind
 import dreamerv3
@@ -21,11 +22,12 @@ def main():
       'run.train_ratio': 64,
       'run.log_every': 300,  # Seconds
       'run.save_every': 120,
-      'envs.amount': 8,
+      'envs.amount': 1,
+      'envs.parallel': 'none',
       'encoder.mlp_keys': '$^',
       'decoder.mlp_keys': '$^',
       'encoder.cnn_keys': 'image',
-      'decoder.cnn_keys': 'image',    
+      'decoder.cnn_keys': 'image',
   })
   config = embodied.Flags(config).parse()
 
@@ -38,7 +40,7 @@ def main():
       # embodied.logger.WandBOutput(logdir.name, config),
       # embodied.logger.MLFlowOutput(logdir.name),
   ])
-    
+
   env_kwargs = registered_env.env_arg_dict['ClothFlatten']
   env_kwargs['observation_mode'] = 'cam_rgb'
   env_kwargs['action_mode'] = 'pickerpickplace'
@@ -52,20 +54,22 @@ def main():
   
   env = MyClothFlattenEnv(**env_kwargs)
   env = from_gym.FromGym(env, obs_key='image')
+  env = dreamerv3.wrap_env(env, config)
+  env = embodied.BatchEnv([env], parallel=False)
+
+  # ctors = []
+  # for _ in range(config.envs.amount):
+  #   env = MyClothFlattenEnv(**env_kwargs)
+  #   env = from_gym.FromGym(env, obs_key='image')
+  #   ctor = lambda: dreamerv3.wrap_env(env, config)
+  #   if config.envs.parallel != 'none':
+  #     ctor = bind(embodied.Parallel, ctor, config.envs.parallel)
+  #   if config.envs.restart:
+  #     ctor = bind(embodied.wrappers.RestartOnException, ctor)
+  #   ctors.append(ctor)
+  # envs = [ctor() for ctor in ctors]
+  # env = embodied.BatchEnv(envs, parallel=(config.envs.parallel != 'none'))
   
-  # env = dreamerv3.wrap_env(env, config)
-
-  ctors = []
-  for _ in range(config.envs.amount):
-    ctor = lambda: dreamerv3.wrap_env(env, config)
-    if config.envs.parallel != 'none':
-      ctor = bind(embodied.Parallel, ctor, config.envs.parallel)
-    if config.envs.restart:
-      ctor = bind(embodied.wrappers.RestartOnException, ctor)
-    ctors.append(ctor)
-  envs = [ctor() for ctor in ctors]
-  env = embodied.BatchEnv(envs, parallel=(config.envs.parallel != 'none'))
-
   agent = dreamerv3.Agent(env.obs_space, env.act_space, step, config)
   replay = embodied.replay.Uniform(
       config.batch_length, config.replay_size, logdir / 'replay')
