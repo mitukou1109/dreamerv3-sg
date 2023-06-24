@@ -10,9 +10,9 @@ def main():
 
   # See configs.yaml for all options.
   config = embodied.Config(dreamerv3.configs['defaults'])
-  config = config.update(dreamerv3.configs['medium'])
+  config = config.update(dreamerv3.configs['small'])
   config = config.update({
-      'logdir': './logdir/cloth_flatten/9',
+      'logdir': './logdir/cloth_flatten/10',
       'jax.policy_devices': [0],
       'jax.train_devices': [0],
       'jax.platform': 'gpu',
