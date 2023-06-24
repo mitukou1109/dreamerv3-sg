@@ -1,6 +1,4 @@
-import os
 import warnings
-from functools import partial as bind
 import dreamerv3
 from dreamerv3 import embodied
 from dreamerv3.embodied.envs import from_gym
@@ -12,9 +10,9 @@ def main():
 
   # See configs.yaml for all options.
   config = embodied.Config(dreamerv3.configs['defaults'])
-  config = config.update(dreamerv3.configs['xlarge'])
+  config = config.update(dreamerv3.configs['medium'])
   config = config.update({
-      'logdir': './logdir/cloth_flatten/7',
+      'logdir': './logdir/cloth_flatten/9',
       'jax.policy_devices': [0],
       'jax.train_devices': [0],
       'jax.platform': 'gpu',
@@ -36,9 +34,7 @@ def main():
   logger = embodied.Logger(step, [
       embodied.logger.TerminalOutput(),
       embodied.logger.JSONLOutput(logdir, 'metrics.jsonl'),
-      embodied.logger.TensorBoardOutput(logdir),
-      # embodied.logger.WandBOutput(logdir.name, config),
-      # embodied.logger.MLFlowOutput(logdir.name),
+      embodied.logger.TensorBoardOutput(logdir)
   ])
 
   env_kwargs = registered_env.env_arg_dict['ClothFlatten']
@@ -56,19 +52,6 @@ def main():
   env = from_gym.FromGym(env, obs_key='image')
   env = dreamerv3.wrap_env(env, config)
   env = embodied.BatchEnv([env], parallel=False)
-
-  # ctors = []
-  # for _ in range(config.envs.amount):
-  #   env = MyClothFlattenEnv(**env_kwargs)
-  #   env = from_gym.FromGym(env, obs_key='image')
-  #   ctor = lambda: dreamerv3.wrap_env(env, config)
-  #   if config.envs.parallel != 'none':
-  #     ctor = bind(embodied.Parallel, ctor, config.envs.parallel)
-  #   if config.envs.restart:
-  #     ctor = bind(embodied.wrappers.RestartOnException, ctor)
-  #   ctors.append(ctor)
-  # envs = [ctor() for ctor in ctors]
-  # env = embodied.BatchEnv(envs, parallel=(config.envs.parallel != 'none'))
   
   agent = dreamerv3.Agent(env.obs_space, env.act_space, step, config)
   replay = embodied.replay.Uniform(
