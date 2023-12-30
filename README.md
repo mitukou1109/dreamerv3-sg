@@ -1,0 +1,3 @@
+# dreamerv3-sg
+
+人工知能応用プロジェクトで製作したDreamerV3とSoftGymを組み合わせた学習用プログラム
